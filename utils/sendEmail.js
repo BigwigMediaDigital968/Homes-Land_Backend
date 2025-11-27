@@ -1,31 +1,26 @@
-const nodemailer = require("nodemailer");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
+require("dotenv").config();
 
-const sendEmail = async ({ to, subject, text, html, attachments }) => {
+// Initialize client
+const client = SibApiV3Sdk.ApiClient.instance;
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
+
+const sendEmail = async ({ to, subject, html }) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-    const mailOptions = {
-      from: `"KPD" <${process.env.EMAIL_USER}>`,
-      to,
+    const sendSmtpEmail = {
+      sender: { name: "Homes & Land Goa", email: "info@homesandlandgoa.com" },
+      to: [{ email: to }],
       subject,
-      text,
-      html,
-      attachments, // ✅ INCLUDE THIS LINE
+      htmlContent: html,
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log(`📧 Email sent to ${to}`);
-  } catch (err) {
-    console.error("❌ Failed to send email:", err);
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    console.log(`✅ Email sent to ${to} successfully via Brevo`);
+  } catch (error) {
+    console.error("❌ Failed to send email via Brevo:", error);
   }
 };
 
