@@ -7,7 +7,11 @@ const otpMap = new Map();
 
 router.post("/send-otp", async (req, res) => {
   const { name, email, phone, message, purpose } = req.body;
-
+  if (!name || !email || !phone || !message || !purpose) {
+    return res.status(400).send({
+      message: "required all feilds",
+    });
+  }
   try {
     // 1️⃣ Check if email already exists in the database
     const existingLead = await Lead.findOne({ email });
@@ -30,7 +34,7 @@ router.post("/send-otp", async (req, res) => {
     // 4️⃣ Send OTP email
     await sendEmail({
       to: email,
-      subject: "Your OTP - Bigwig Media",
+      subject: "Your OTP - HOMES & LAND GOA",
       html: `<p>Hello ${name},</p><p>Your OTP is: <strong>${otp}</strong></p>`,
     });
 
@@ -63,21 +67,18 @@ router.post("/verify-otp", async (req, res) => {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
         <div style="text-align: center; padding: 20px;">
-          <img src="https://res.cloudinary.com/dqrlkbsdq/image/upload/v1755090981/logo_bohujn.png" alt="KPD Logo" width="120" />
+          <img src="https://res.cloudinary.com/dcq2oziz4/image/upload/v1764225152/WhatsApp_Image_2025-08-18_at_11.47.48_AM_e0pe9i.jpg" alt="Homes&Land Goa" width="120" />
         </div>
         <div style="padding: 20px; background-color: #f9f9f9; border-radius: 10px;">
           <h2 style="color: #333;">Hello ${data.name},</h2>
           <p style="font-size: 16px; color: #555;">
-            Thank you for reaching out to <strong>KPD</strong>.
+            Thank you for reaching out to <strong>Homes & Land Goa</strong>.
             We have received your message and our team will get in touch with you within the next 24-48 hours.
-          </p>
-          <p style="font-size: 16px; color: #555;">
-            Meanwhile, feel free to explore more about our services or reply to this email if you have any additional questions.
           </p>
           <p style="margin-top: 30px; font-size: 15px; color: #777;">
             Regards,<br />
-            <strong>Team KPD</strong><br />
-            <a href="https://www.bigwigdigital.in/" style="color: #007BFF;">Bigwig Digital</a>
+            <strong>Team Homes & Land Goa</strong><br />
+            <a href="https://www.homesandlandgoa.com/" style="color: #007BFF;">Bigwig Digital</a>
           </p>
         </div>
       </div>
@@ -86,7 +87,7 @@ router.post("/verify-otp", async (req, res) => {
 
   // 2️⃣ Send internal notification to HR
   await sendEmail({
-    to: "accounts@bigwigmedia.in", // 🔁 Replace with actual HR email
+    to: "info@homesandlandgoa.com", // 🔁 Replace with actual HR email
     subject: "New Lead Captured - Bigwig Media",
     html: `
       <h3>New Lead Details</h3>
