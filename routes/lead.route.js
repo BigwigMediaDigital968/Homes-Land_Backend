@@ -38,7 +38,7 @@ router.post("/send-otp", async (req, res) => {
       html: `<p>Hello ${name},</p><p>Your OTP is: <strong>${otp}</strong></p>`,
     });
 
-    res.status(200).json({ message: "OTP sent to email." });
+    res.status(200).json({ message: "OTP sent to email. check inbox or mail" });
   } catch (err) {
     console.error("Error sending OTP:", err);
     res.status(500).json({ message: "Server error while sending OTP." });
