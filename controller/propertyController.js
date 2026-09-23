@@ -71,12 +71,29 @@ exports.createProperty = async (req, res) => {
   }
 };
 
-// @desc    Get all properties
-// @route   GET /api/properties
+// @desc    Get all properties (optionally filtered by ?category=buy|rent|upcoming|sell)
+// @route   GET /property
+// @route   GET /property?category=rent
 // @access  Public
 exports.getProperties = async (req, res) => {
   try {
-    const properties = await Property.find().sort({ createdAt: -1 });
+    // Map URL-friendly category → model's purpose enum value
+    const categoryMap = {
+      buy: "Buy",
+      rent: "Rent",
+      upcoming: "Upcoming",
+      sell: "Sell",
+    };
+
+    const filter = {};
+    if (req.query.category) {
+      const purpose = categoryMap[req.query.category.toLowerCase()];
+      if (purpose) {
+        filter.purpose = { $regex: new RegExp(`^${purpose}$`, "i") };
+      }
+    }
+
+    const properties = await Property.find(filter).sort({ createdAt: -1 });
     res.status(200).json(properties);
   } catch (error) {
     console.error(error);
