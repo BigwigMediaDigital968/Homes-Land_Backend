@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Lead = require("../models/lead.model");
 const sendEmail = require("../utils/sendEmail");
+const {
+  createLead,
+  deleteLead,
+  updateLeadStatus,
+} = require("../controller/lead.controller");
 
 const otpMap = new Map();
 
@@ -103,6 +108,9 @@ router.post("/verify-otp", async (req, res) => {
     .status(200)
     .json({ message: "Lead captured, confirmation sent, HR notified." });
 });
+
+router.post("/create-lead", createLead);
+
 router.get("/all", async (req, res) => {
   try {
     const leads = await Lead.find().sort({ createdAt: -1 }); // Sort latest first
@@ -112,5 +120,8 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ message: "Server error while fetching leads." });
   }
 });
+
+router.patch("/:id/status", updateLeadStatus);
+router.delete("/:id", deleteLead);
 
 module.exports = router;
