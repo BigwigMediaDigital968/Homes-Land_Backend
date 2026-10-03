@@ -205,7 +205,7 @@ exports.updateProperty = async (req, res) => {
     const property = await Property.findOneAndUpdate(
       { slug: req.params.slug },
       { $set: updatedFields },
-      { new: true }
+      { new: true, runValidators: true } // enforce the type list on edits too
     );
 
     res.status(200).json(property);

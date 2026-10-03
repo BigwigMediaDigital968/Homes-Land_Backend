@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { PROPERTY_TYPES } = require("../constants/propertyTypes");
 
 const propertySchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -9,7 +10,7 @@ const propertySchema = new mongoose.Schema({
     enum: ["Buy", "Sell", "Rent", "Upcoming"],
     required: true,
   },
-  type: { type: String, required: true }, // villa, apartment, penthouse, etc.
+  type: { type: String, enum: PROPERTY_TYPES, required: true },
   location: { type: String, required: true },
 
   images: { type: [String], default: [] }, // URLs or Cloudinary links
