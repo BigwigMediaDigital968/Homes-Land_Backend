@@ -7,6 +7,7 @@ const buyproperty = require("./routes/propertyRoutes");
 const sellproperty = require("./routes/Sell.route");
 const contactRoutes = require("./routes/contact.route");
 const SellApproval = require("./routes/AdminApproval");
+const authRoutes = require("./routes/auth.routes");
 
 require("dotenv").config();
 
@@ -21,6 +22,7 @@ app.use("/property", buyproperty);
 app.use("/sellproperty", sellproperty);
 app.use("/api/contacts", contactRoutes);
 app.use("/sell", SellApproval);
+app.use("/api/admin", authRoutes);
 
 // Start server
 app.listen(process.env.PORT, async () => {

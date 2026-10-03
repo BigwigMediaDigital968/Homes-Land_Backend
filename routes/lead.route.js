@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { requireAdmin } = require("../middleware/auth.middleware");
 const Lead = require("../models/lead.model");
 const sendEmail = require("../utils/sendEmail");
 const {
@@ -111,7 +112,7 @@ router.post("/verify-otp", async (req, res) => {
 
 router.post("/create-lead", createLead);
 
-router.get("/all", async (req, res) => {
+router.get("/all", requireAdmin, async (req, res) => {
   try {
     const leads = await Lead.find().sort({ createdAt: -1 }); // Sort latest first
     res.status(200).json(leads);
@@ -121,7 +122,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.patch("/:id/status", updateLeadStatus);
-router.delete("/:id", deleteLead);
+router.patch("/:id/status", requireAdmin, updateLeadStatus);
+router.delete("/:id", requireAdmin, deleteLead);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { requireAdmin } = require("../middleware/auth.middleware");
 const {
   createContact,
   getContacts,
@@ -10,9 +11,9 @@ const {
 router.post("/", createContact);
 
 // GET /api/contacts - get all contacts
-router.get("/", getContacts);
+router.get("/", requireAdmin, getContacts);
 
 // DELETE /api/contacts/:id - delete a contact by ID
-router.delete("/:id", deleteContact);
+router.delete("/:id", requireAdmin, deleteContact);
 
 module.exports = router;

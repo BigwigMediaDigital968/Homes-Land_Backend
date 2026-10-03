@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { requireAdmin } = require("../middleware/auth.middleware");
 const BlogPost = require("../models/blog.model");
 
 const multer = require("multer");
@@ -6,7 +7,7 @@ const multer = require("multer");
 const storage = require("../config/storage");
 const upload = multer({ storage });
 
-router.post("/add", upload.single("coverImage"), async (req, res) => {
+router.post("/add", requireAdmin, upload.single("coverImage"), async (req, res) => {
   try {
     const { title, slug, excerpt, content, author, tags } = req.body;
 
@@ -88,7 +89,7 @@ router.get("/:slug", async (req, res) => {
   }
 });
 
-router.put("/:slug", upload.single("coverImage"), async (req, res) => {
+router.put("/:slug", requireAdmin, upload.single("coverImage"), async (req, res) => {
   const { slug } = req.params;
   const { title, content, author, excerpt, tags, schemaMarkup } = req.body;
 
@@ -128,7 +129,7 @@ router.put("/:slug", upload.single("coverImage"), async (req, res) => {
   }
 });
 
-router.delete("/:slug", async (req, res) => {
+router.delete("/:slug", requireAdmin, async (req, res) => {
   const { slug } = req.params;
 
   try {
@@ -145,7 +146,7 @@ router.delete("/:slug", async (req, res) => {
   }
 });
 
-router.patch("/:slug/image", upload.single("coverImage"), async (req, res) => {
+router.patch("/:slug/image", requireAdmin, upload.single("coverImage"), async (req, res) => {
   try {
     const { slug } = req.params;
 
