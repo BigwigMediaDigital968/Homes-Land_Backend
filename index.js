@@ -1,4 +1,11 @@
 const express = require("express");
+
+const dns = require("node:dns");
+
+if (dns.getServers().length === 1 && dns.getServers()[0] === "127.0.0.1") {
+  dns.setServers(["8.8.8.8", "8.8.4.4"]);
+}
+
 const cors = require("cors");
 const { connect } = require("./config/db");
 const leadRoutes = require("./routes/lead.route");

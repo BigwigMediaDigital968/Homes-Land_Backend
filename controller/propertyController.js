@@ -1,14 +1,12 @@
 const Property = require("../models/Buy.model");
 
-// @desc    Create a new property with images
-// @route   POST /api/properties
-// @access  Public or Admin
-
 exports.createProperty = async (req, res) => {
   try {
     const {
       title,
       description,
+      metaTitle,
+      metaDescription,
       purpose,
       type,
       location,
@@ -45,6 +43,8 @@ exports.createProperty = async (req, res) => {
       title,
       slug,
       description: description || "", // if empty, fallback ""
+      metaTitle: metaTitle || "",
+      metaDescription: metaDescription || "",
       purpose,
       type,
       location,
@@ -168,6 +168,8 @@ exports.updateProperty = async (req, res) => {
       title: req.body.title ?? existing.title,
       slug,
       description: req.body.description ?? existing.description,
+      metaTitle: req.body.metaTitle ?? existing.metaTitle,
+      metaDescription: req.body.metaDescription ?? existing.metaDescription,
       purpose: req.body.purpose ?? existing.purpose,
       type: req.body.type ?? existing.type,
       location: req.body.location ?? existing.location,
