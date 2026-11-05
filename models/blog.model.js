@@ -31,6 +31,11 @@ const blogPostSchema = new mongoose.Schema({
     default: [],
   },
 
+  faqs: {
+    type: [{ question: String, answer: String, _id: false }],
+    default: [],
+  },
+
   schemaMarkup: {
     type: [String], // array of JSON-LD strings
     default: [],

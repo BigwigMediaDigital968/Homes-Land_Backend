@@ -7,6 +7,65 @@ const multer = require("multer");
 const storage = require("../config/storage");
 const upload = multer({ storage });
 
+// Inline images for the rich-text editor: uploaded to Cloudinary (blogs folder),
+// returns { url }. Declared before "/:slug" routes; POST only so no clash.
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const inlineUpload = multer({
+  storage: new CloudinaryStorage({
+    cloudinary: require("../config/cloudinary"),
+    params: {
+      folder: "blogs",
+      allowed_formats: ["jpg", "jpeg", "png", "webp", "gif", "avif"],
+    },
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+// FAQs arrive as a JSON string (multipart form); keep only complete pairs.
+const parseFaqs = (raw) => {
+  try {
+    const list = JSON.parse(raw);
+    return Array.isArray(list)
+      ? list
+          .map((f) => ({
+            question: String(f?.question ?? "").trim(),
+            answer: String(f?.answer ?? "").trim(),
+          }))
+          .filter((f) => f.question && f.answer)
+      : [];
+  } catch {
+    return [];
+  }
+};
+
+// Media library: previously uploaded blog images, newest first (paged).
+router.get("/media", requireAdmin, async (req, res) => {
+  try {
+    let search = require("../config/cloudinary")
+      .search.expression("folder:blogs")
+      .sort_by("created_at", "desc")
+      .max_results(30);
+    if (req.query.cursor) search = search.next_cursor(String(req.query.cursor));
+    const result = await search.execute();
+    res.json({
+      items: result.resources.map((r) => ({
+        url: r.secure_url,
+        name: r.display_name || r.public_id,
+      })),
+      next: result.next_cursor || null,
+    });
+  } catch (error) {
+    console.error("Media library error:", error.message);
+    res.status(500).json({ error: "Could not load media library." });
+  }
+});
+
+router.post("/upload-image", requireAdmin, inlineUpload.single("image"), (req, res) => {
+  const url = req.file && (req.file.secure_url || req.file.path);
+  if (!url) return res.status(400).json({ error: "Image upload failed." });
+  res.status(201).json({ url });
+});
+
 router.post("/add", requireAdmin, upload.single("coverImage"), async (req, res) => {
   try {
     const { title, slug, excerpt, content, author, tags } = req.body;
@@ -43,6 +102,7 @@ router.post("/add", requireAdmin, upload.single("coverImage"), async (req, res) 
       tags: tags?.split(",").map((tag) => tag.trim()),
       coverImage,
       schemaMarkup, // stored as array
+      faqs: parseFaqs(req.body.faqs),
 
       // likes is not passed intentionally — default is 0
     });
@@ -101,6 +161,7 @@ router.put("/:slug", requireAdmin, upload.single("coverImage"), async (req, res)
       ...(excerpt && { excerpt }),
       ...(tags && { tags: tags.split(",").map((tag) => tag.trim()) }),
       ...(schemaMarkup && { schemaMarkup }), // 🔥 store as-is
+      ...(req.body.faqs !== undefined && { faqs: parseFaqs(req.body.faqs) }),
 
       lastUpdated: new Date(),
     };
